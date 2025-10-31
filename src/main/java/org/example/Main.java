@@ -3,8 +3,9 @@ package org.example;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.example.models.InputData;
-import org.example.algorithms.PrimsAlgorithm;
 import org.example.models.AlgorithmResult;
+import org.example.algorithms.PrimsAlgorithm;
+import org.example.algorithms.KruskalsAlgorithm;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -29,10 +30,10 @@ public class Main {
                 System.out.println("✅ Successfully parsed input data!");
                 System.out.println("Number of graphs: " + inputData.getGraphs().size());
 
-                // Test Prim's algorithm on each graph
+                // Test both algorithms on each graph
                 for (int i = 0; i < inputData.getGraphs().size(); i++) {
                     var graph = inputData.getGraphs().get(i);
-                    System.out.println("\n" + "=".repeat(50));
+                    System.out.println("\n" + "=".repeat(60));
                     System.out.println("--- Testing Graph " + graph.getId() + " ---");
                     System.out.println("Nodes: " + graph.getNodes().size() + " - " + graph.getNodes());
                     System.out.println("Edges: " + graph.getEdges().size());
@@ -40,21 +41,22 @@ public class Main {
                     // Run Prim's algorithm
                     System.out.println("\n Running Prim's Algorithm...");
                     var primResult = PrimsAlgorithm.findMST(graph);
+                    displayAlgorithmResults("Prim", primResult);
 
-                    // Display Prim's results
-                    System.out.println("✅ Prim's MST found!");
-                    System.out.println("Total cost: " + primResult.getTotal_cost());
-                    System.out.println("Operations count: " + primResult.getOperations_count());
-                    System.out.println("⏱Execution time: " + primResult.getExecution_time_ms() + " ms");
-                    System.out.println("MST edges:");
+                    // Run Kruskal's algorithm
+                    System.out.println("\n Running Kruskal's Algorithm...");
+                    var kruskalResult = KruskalsAlgorithm.findMST(graph);
+                    displayAlgorithmResults("Kruskal", kruskalResult);
 
-                    for (var edge : primResult.getMst_edges()) {
-                        System.out.println("   " + edge.getFrom() + " --(" + edge.getWeight() + ")--> " + edge.getTo());
-                    }
+                    // Compare results
+                    System.out.println("\n COMPARISON RESULTS:");
+                    compareAlgorithms(primResult, kruskalResult);
 
-                    // Verify against expected results for graph 1
+                    // Verify against expected results
                     if (graph.getId() == 1) {
-                        verifyGraph1Results(primResult);
+                        verifyGraph1Results(primResult, kruskalResult);
+                    } else if (graph.getId() == 2) {
+                        verifyGraph2Results(primResult, kruskalResult);
                     }
                 }
             } else {
@@ -71,33 +73,88 @@ public class Main {
     }
 
     /**
-     * Verify Prim's results for Graph 1 against expected values
+     * Display results for a single algorithm
      */
-    private static void verifyGraph1Results(AlgorithmResult primResult) {
-        System.out.println("\n ---- Verifying Graph 1 results against expected values... ---");
+    private static void displayAlgorithmResults(String algorithmName, AlgorithmResult result) {
+        System.out.println("✅ " + algorithmName + " MST found!");
+        System.out.println("-- Total cost: " + result.getTotal_cost());
+        System.out.println("-- Operations count: " + result.getOperations_count());
+        System.out.println("-- Execution time: " + String.format("%.2f", result.getExecution_time_ms()) + " ms");
+        System.out.println("-- MST edges (" + result.getMst_edges().size() + "):");
+
+        for (var edge : result.getMst_edges()) {
+            System.out.println("   " + edge.getFrom() + " --(" + edge.getWeight() + ")--> " + edge.getTo());
+        }
+    }
+
+    /**
+     * Compare results of both algorithms
+     */
+    private static void compareAlgorithms(AlgorithmResult prim, AlgorithmResult kruskal) {
+        boolean costsMatch = prim.getTotal_cost() == kruskal.getTotal_cost();
+        boolean edgesCountMatch = prim.getMst_edges().size() == kruskal.getMst_edges().size();
+
+        System.out.println("-- Total cost match: " + (costsMatch ? "✅ YES" : "❌ NO"));
+        System.out.println("-- MST edges count match: " + (edgesCountMatch ? "✅ YES" : "❌ NO"));
+        System.out.println("-- Prim operations: " + prim.getOperations_count() +
+                " vs Kruskal operations: " + kruskal.getOperations_count());
+        System.out.println("-- Prim time: " + String.format("%.2f", prim.getExecution_time_ms()) + " ms" +
+                " vs Kruskal time: " + String.format("%.2f", kruskal.getExecution_time_ms()) + " ms");
+
+        if (prim.getOperations_count() < kruskal.getOperations_count()) {
+            System.out.println("-- Prim used fewer operations");
+        } else if (prim.getOperations_count() > kruskal.getOperations_count()) {
+            System.out.println("-- Kruskal used fewer operations");
+        } else {
+            System.out.println("-- Both algorithms used same number of operations");
+        }
+    }
+
+    /**
+     * Verify Graph 1 results against expected values
+     */
+    private static void verifyGraph1Results(AlgorithmResult primResult, AlgorithmResult kruskalResult) {
+        System.out.println("\n--- Verifying Graph 1 results against expected values... ---");
 
         int expectedCost = 16;
-        int actualCost = primResult.getTotal_cost();
-
-        System.out.println("Expected total cost: " + expectedCost);
-        System.out.println("Actual total cost: " + actualCost);
-
-        if (actualCost == expectedCost) {
-            System.out.println("✅ Total cost verification: PASSED");
-        } else {
-            System.out.println("❌ Total cost verification: FAILED");
-        }
-
-        // Check if we have the expected number of edges (V-1 = 4 edges for 5 vertices)
         int expectedEdges = 4;
-        int actualEdges = primResult.getMst_edges().size();
-        System.out.println("Expected edges in MST: " + expectedEdges);
-        System.out.println("Actual edges in MST: " + actualEdges);
 
-        if (actualEdges == expectedEdges) {
-            System.out.println("✅ MST edges count verification: PASSED");
+        verifyAlgorithmResults("Prim", primResult, expectedCost, expectedEdges);
+        verifyAlgorithmResults("Kruskal", kruskalResult, expectedCost, expectedEdges);
+
+        // Check if both algorithms produced same cost
+        if (primResult.getTotal_cost() == kruskalResult.getTotal_cost()) {
+            System.out.println("✅ Both algorithms produced identical total cost: " + primResult.getTotal_cost());
         } else {
-            System.out.println("❌ MST edges count verification: FAILED");
+            System.out.println("❌ Algorithms produced different costs!");
         }
+    }
+
+    /**
+     * Verify Graph 2 results against expected values
+     */
+    private static void verifyGraph2Results(AlgorithmResult primResult, AlgorithmResult kruskalResult) {
+        System.out.println("\n--- Verifying Graph 2 results against expected values... ---");
+
+        int expectedCost = 6;
+        int expectedEdges = 3;
+
+        verifyAlgorithmResults("Prim", primResult, expectedCost, expectedEdges);
+        verifyAlgorithmResults("Kruskal", kruskalResult, expectedCost, expectedEdges);
+    }
+
+    /**
+     * Verify results for a single algorithm
+     */
+    private static void verifyAlgorithmResults(String algorithmName, AlgorithmResult result,
+                                               int expectedCost, int expectedEdges) {
+        boolean costOk = result.getTotal_cost() == expectedCost;
+        boolean edgesOk = result.getMst_edges().size() == expectedEdges;
+
+        System.out.println(algorithmName + ":");
+        System.out.println("  Cost: " + result.getTotal_cost() + "/" + expectedCost + " " +
+                (costOk ? "✅" : "❌"));
+        System.out.println("  Edges: " + result.getMst_edges().size() + "/" + expectedEdges + " " +
+                (edgesOk ? "✅" : "❌"));
     }
 }
