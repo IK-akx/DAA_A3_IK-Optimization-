@@ -1,5 +1,6 @@
 package org.example.algorithms;
 
+
 import org.example.models.AlgorithmResult;
 import org.example.models.Edge;
 import org.example.models.Graph;
@@ -9,12 +10,11 @@ import java.util.*;
 public class PrimsAlgorithm {
 
     /**
-     * Finds MST using Prim's algorithm
+     * Finds MST using Prim's algorithm (without timing - timing is done in Main)
      * @param graph input graph
-     * @return AlgorithmResult containing MST edges, total cost, operations count and execution time
+     * @return AlgorithmResult containing MST edges, total cost and operations count
      */
     public static AlgorithmResult findMST(Graph graph) {
-        long startTime = System.nanoTime();
         int operationsCount = 0;
 
         List<Edge> mstEdges = new ArrayList<>();
@@ -31,14 +31,14 @@ public class PrimsAlgorithm {
         // Start from first node
         String startNode = graph.getNodes().get(0);
         visited.add(startNode);
-        operationsCount++; // Adding to visited
+        operationsCount++; // For adding to visited
 
         // Add all edges from start node to heap
         for (Edge edge : graph.getEdges()) {
-            operationsCount++; // Each edge check
+            operationsCount++; // For each edge check
             if (edge.getFrom().equals(startNode) || edge.getTo().equals(startNode)) {
                 minHeap.offer(edge);
-                operationsCount++; // Heap offer
+                operationsCount++; // For heap offer
             }
         }
 
@@ -46,7 +46,7 @@ public class PrimsAlgorithm {
             operationsCount++; // While loop condition check
 
             Edge minEdge = minHeap.poll();
-            operationsCount++; // Heap poll
+            operationsCount++; // For heap poll
 
             String nextNode = null;
 
@@ -57,9 +57,9 @@ public class PrimsAlgorithm {
                 nextNode = minEdge.getTo();
             }
 
-            operationsCount += 2;
+            operationsCount += 2; // For two contains checks
 
-            // If both visited, skip this edge
+            // If both nodes are visited, skip this edge
             if (nextNode == null) {
                 continue;
             }
@@ -72,22 +72,19 @@ public class PrimsAlgorithm {
 
             // Add all edges from the new node to heap
             for (Edge edge : graph.getEdges()) {
-                operationsCount++; // Each edge check
+                operationsCount++; // For each edge check
 
                 boolean fromNewNode = edge.getFrom().equals(nextNode) && !visited.contains(edge.getTo());
                 boolean toNewNode = edge.getTo().equals(nextNode) && !visited.contains(edge.getFrom());
-                operationsCount += 2; // Two contains checks
+                operationsCount += 2; // For two contains checks
 
                 if (fromNewNode || toNewNode) {
                     minHeap.offer(edge);
-                    operationsCount++; // Heap offer
+                    operationsCount++; // For heap offer
                 }
             }
         }
 
-        long endTime = System.nanoTime();
-        double executionTimeMs = (endTime - startTime) / 1_000_000.0;
-
-        return new AlgorithmResult(mstEdges, totalCost, operationsCount, executionTimeMs);
+        return new AlgorithmResult(mstEdges, totalCost, operationsCount, 0);
     }
 }
