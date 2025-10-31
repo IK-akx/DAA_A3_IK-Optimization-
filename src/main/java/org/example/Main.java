@@ -13,6 +13,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Main class for MST Transportation Network Optimization
+ */
 public class Main {
     public static void main(String[] args) {
         System.out.println("=== MST Transportation Network Optimization ===");
@@ -30,7 +33,7 @@ public class Main {
             // Display basic information about parsed data
             if (inputData != null && inputData.getGraphs() != null) {
                 System.out.println("✅ Successfully parsed input data!");
-                System.out.println(" Number of graphs: " + inputData.getGraphs().size());
+                System.out.println("📊 Number of graphs: " + inputData.getGraphs().size());
 
                 List<GraphResult> results = new ArrayList<>();
 
@@ -48,7 +51,7 @@ public class Main {
                     );
 
                     // Run Prim's algorithm with precise timing
-                    System.out.println("\n-- Running Prim's Algorithm...");
+                    System.out.println("\n🏗️  Running Prim's Algorithm...");
                     long primStartTime = System.nanoTime();
                     AlgorithmResult primResult = PrimsAlgorithm.findMST(graph);
                     long primEndTime = System.nanoTime();
@@ -56,7 +59,7 @@ public class Main {
                     primResult.setExecution_time_ms(primTimeMs);
 
                     // Run Kruskal's algorithm with precise timing
-                    System.out.println("-- Running Kruskal's Algorithm...");
+                    System.out.println("🔗 Running Kruskal's Algorithm...");
                     long kruskalStartTime = System.nanoTime();
                     AlgorithmResult kruskalResult = KruskalsAlgorithm.findMST(graph);
                     long kruskalEndTime = System.nanoTime();
@@ -68,7 +71,7 @@ public class Main {
                     displayAlgorithmResults("Kruskal", kruskalResult);
 
                     // Compare results
-                    System.out.println("\n-- COMPARISON RESULTS:");
+                    System.out.println("\n📊 COMPARISON RESULTS:");
                     compareAlgorithms(primResult, kruskalResult);
 
                     // Create graph result
@@ -114,9 +117,9 @@ public class Main {
 
         try (FileWriter writer = new FileWriter(outputPath)) {
             gson.toJson(outputData, writer);
-            System.out.println("\n-- SUCCESS: Output file generated!");
-            System.out.println("-- File: " + outputPath);
-            System.out.println("-- Contains results for " + outputData.getResults().size() + " graphs");
+            System.out.println("\n🎉 SUCCESS: Output file generated!");
+            System.out.println("📁 File: " + outputPath);
+            System.out.println("📊 Contains results for " + outputData.getResults().size() + " graphs");
 
             // Display summary of written data
             for (GraphResult result : outputData.getResults()) {
@@ -138,10 +141,10 @@ public class Main {
      */
     private static void displayAlgorithmResults(String algorithmName, AlgorithmResult result) {
         System.out.println("✅ " + algorithmName + " MST found!");
-        System.out.println("-- Total cost: " + result.getTotal_cost());
-        System.out.println("-- Operations count: " + result.getOperations_count());
-        System.out.println("--  Execution time: " + String.format("%.2f", result.getExecution_time_ms()) + " ms");
-        System.out.println("-- MST edges (" + result.getMst_edges().size() + "):");
+        System.out.println("📏 Total cost: " + result.getTotal_cost());
+        System.out.println("🔄 Operations count: " + result.getOperations_count());
+        System.out.println("⏱️  Execution time: " + String.format("%.2f", result.getExecution_time_ms()) + " ms");
+        System.out.println("🔗 MST edges (" + result.getMst_edges().size() + "):");
 
         for (var edge : result.getMst_edges()) {
             System.out.println("   " + edge.getFrom() + " --(" + edge.getWeight() + ")--> " + edge.getTo());
@@ -155,19 +158,19 @@ public class Main {
         boolean costsMatch = prim.getTotal_cost() == kruskal.getTotal_cost();
         boolean edgesCountMatch = prim.getMst_edges().size() == kruskal.getMst_edges().size();
 
-        System.out.println("-- Total cost match: " + (costsMatch ? "✅ YES" : "❌ NO"));
-        System.out.println("-- MST edges count match: " + (edgesCountMatch ? "✅ YES" : "❌ NO"));
-        System.out.println("-- Prim operations: " + prim.getOperations_count() +
+        System.out.println("💰 Total cost match: " + (costsMatch ? "✅ YES" : "❌ NO"));
+        System.out.println("🔗 MST edges count match: " + (edgesCountMatch ? "✅ YES" : "❌ NO"));
+        System.out.println("⚡ Prim operations: " + prim.getOperations_count() +
                 " vs Kruskal operations: " + kruskal.getOperations_count());
-        System.out.println("--  Prim time: " + String.format("%.2f", prim.getExecution_time_ms()) + " ms" +
+        System.out.println("⏱️  Prim time: " + String.format("%.2f", prim.getExecution_time_ms()) + " ms" +
                 " vs Kruskal time: " + String.format("%.2f", kruskal.getExecution_time_ms()) + " ms");
 
         if (prim.getOperations_count() < kruskal.getOperations_count()) {
-            System.out.println("-- Prim used fewer operations");
+            System.out.println("🎯 Prim used fewer operations");
         } else if (prim.getOperations_count() > kruskal.getOperations_count()) {
-            System.out.println("-- Kruskal used fewer operations");
+            System.out.println("🎯 Kruskal used fewer operations");
         } else {
-            System.out.println("-- Both algorithms used same number of operations");
+            System.out.println("🎯 Both algorithms used same number of operations");
         }
 
         if (prim.getExecution_time_ms() < kruskal.getExecution_time_ms()) {
@@ -183,7 +186,7 @@ public class Main {
      * Verify Graph 1 results against expected values
      */
     private static void verifyGraph1Results(AlgorithmResult primResult, AlgorithmResult kruskalResult) {
-        System.out.println("\n--- Verifying Graph 1 results against expected values... ---");
+        System.out.println("\n🔍 Verifying Graph 1 results against expected values...");
 
         int expectedCost = 16;
         int expectedEdges = 4;
@@ -203,7 +206,7 @@ public class Main {
      * Verify Graph 2 results against expected values
      */
     private static void verifyGraph2Results(AlgorithmResult primResult, AlgorithmResult kruskalResult) {
-        System.out.println("\n--- Verifying Graph 2 results against expected values... ---");
+        System.out.println("\n🔍 Verifying Graph 2 results against expected values...");
 
         int expectedCost = 6;
         int expectedEdges = 3;
