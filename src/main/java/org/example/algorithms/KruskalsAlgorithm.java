@@ -14,7 +14,6 @@ public class KruskalsAlgorithm {
      * @return AlgorithmResult containing MST edges, total cost, operations count and execution time
      */
     public static AlgorithmResult findMST(Graph graph) {
-        long startTime = System.nanoTime();
         int operationsCount = 0;
 
         List<Edge> mstEdges = new ArrayList<>();
@@ -70,9 +69,7 @@ public class KruskalsAlgorithm {
         // Add DSU operations to total operations count
         operationsCount += dsu.getOperationsCount();
 
-        long endTime = System.nanoTime();
-        double executionTimeMs = (endTime - startTime) / 1_000_000.0;
 
-        return new AlgorithmResult(mstEdges, totalCost, operationsCount, executionTimeMs);
+        return new AlgorithmResult(mstEdges, totalCost, operationsCount, 0);
     }
 }

@@ -11,7 +11,6 @@ public class AlgorithmResult {
     // Default constructor for Gson
     public AlgorithmResult() {}
 
-    // Updated constructor with operations_count and execution_time_ms
     public AlgorithmResult(List<Edge> mst_edges, int total_cost, int operations_count, double execution_time_ms) {
         this.mst_edges = mst_edges;
         this.total_cost = total_cost;
